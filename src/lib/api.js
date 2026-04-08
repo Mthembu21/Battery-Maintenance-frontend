@@ -1,8 +1,12 @@
 import axios from 'axios';
 
 export function createApiClient() {
+  const baseURL = import.meta.env.PROD 
+    ? 'https://battery-maintenance-backend.onrender.com/api'
+    : '/api';
+  
   const api = axios.create({
-    baseURL: '/api'
+    baseURL
   });
 
   api.interceptors.request.use((config) => {

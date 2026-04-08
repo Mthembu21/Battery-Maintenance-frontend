@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: battery-maintenance-frontend
+    env: static
+    plan: free
+    buildCommand: npm run build
+    staticPublishPath: dist
+    buildFilter:
+      paths:
+        - src/**
+        - public/**
+        - package.json
+        - vite.config.js
+        - index.html
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+    autoDeploy: true
