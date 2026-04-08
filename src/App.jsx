@@ -78,10 +78,7 @@ function AppRoutes() {
   // Public routes (not authenticated)
   return (
     <Routes>
-<<<<<<< HEAD
       <Route path="/" element={<Navigate to="/login" replace />} />
-=======
->>>>>>> a6020bf3a5078c9f66089211af8f2ac94052d9c6
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/index" element={<IndexRedirect />} />
