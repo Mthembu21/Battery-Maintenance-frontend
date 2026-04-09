@@ -1,7 +1,7 @@
 export function getStoredAuth() {
   const token = localStorage.getItem('auth_token');
   const userRaw = localStorage.getItem('auth_user');
-  const user = userRaw ? JSON.parse(userRaw) : null;
+  const user = userRaw && userRaw !== 'undefined' && userRaw !== null ? JSON.parse(userRaw) : null;
   return { token, user };
 }
 
