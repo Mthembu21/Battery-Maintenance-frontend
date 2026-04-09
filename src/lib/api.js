@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export function createApiClient() {
-  const baseURL = import.meta.env.PROD 
+  const baseURL = import.meta.env.MODE === 'production' 
     ? 'https://battery-maintenance-backend.onrender.com/api'
     : '/api';
   
