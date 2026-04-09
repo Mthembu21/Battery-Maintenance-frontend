@@ -1,7 +1,10 @@
 import axios from 'axios';
 
 export function createApiClient() {
-  const baseURL = import.meta.env.MODE === 'production' 
+  // Check if we're in production by looking at hostname
+  const isProduction = window.location.hostname === 'battery-maintenance-frontend.onrender.com';
+  
+  const baseURL = isProduction 
     ? 'https://battery-maintenance-backend.onrender.com/api'
     : '/api';
   
