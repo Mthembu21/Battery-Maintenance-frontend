@@ -19,5 +19,5 @@ services:
     # SPA routing configuration
     routes:
       - type: rewrite
-        source: /*
+        source: /{path*}
         destination: /index.html
