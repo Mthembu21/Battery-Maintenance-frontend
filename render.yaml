@@ -16,3 +16,8 @@ services:
       - key: VITE_API_URL
         value: https://battery-maintenance-backend.onrender.com/api
     autoDeploy: true
+    # SPA routing configuration
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
