@@ -1,23 +1,21 @@
 services:
   - type: web
     name: battery-maintenance-frontend
-    env: static
+    env: node
     plan: free
     buildCommand: npm run build
-    staticPublishPath: dist
+    startCommand: npm start
     buildFilter:
       paths:
         - src/**
         - public/**
         - package.json
+        - server.js
         - vite.config.js
         - index.html
     envVars:
+      - key: NODE_VERSION
+        value: 20
       - key: VITE_API_URL
         value: https://battery-maintenance-backend.onrender.com/api
     autoDeploy: true
-    # SPA routing configuration
-    routes:
-      - type: rewrite
-        source: /{path*}
-        destination: /index.html
