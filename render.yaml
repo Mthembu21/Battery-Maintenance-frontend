@@ -13,6 +13,6 @@ services:
         - vite.config.js
         - index.html
     envVars:
-      - key: NODE_VERSION
-        value: 20
+      - key: VITE_API_URL
+        value: https://battery-maintenance-backend.onrender.com/api
     autoDeploy: true

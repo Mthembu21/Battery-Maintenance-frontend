@@ -1,6 +1,5 @@
-// Base API configuration
-const API_BASE_URL = 'https://battery-maintenance-backend.onrender.com';
-const API_BASE = '/api';
+// Base API configuration using environment variables
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://battery-maintenance-backend.onrender.com/api';
 
 // Helper function for making authenticated requests
 async function apiRequest(endpoint, options = {}) {
@@ -25,7 +24,7 @@ async function apiRequest(endpoint, options = {}) {
     delete requestOptions.body;
   }
 
-  const url = `${API_BASE_URL}${API_BASE}${endpoint}`;
+  const url = `${API_BASE_URL}${endpoint}`;
   console.log('Making API request:', { method: requestOptions.method, url });
 
   const res = await fetch(url, requestOptions);
