@@ -26,11 +26,20 @@ async function apiRequest(endpoint, options = {}) {
 
   const url = `${API_BASE_URL}${endpoint}`;
   console.log('Making API request:', { method: requestOptions.method, url });
+  console.log('API Base URL:', API_BASE_URL);
+  console.log('Environment Variables:', { VITE_API_URL: import.meta.env.VITE_API_URL });
 
   const res = await fetch(url, requestOptions);
 
   if (!res.ok) {
-    console.error('API Error:', { status: res.status, url, statusText: res.statusText });
+    console.error('API Error:', { 
+      status: res.status, 
+      url, 
+      statusText: res.statusText,
+      headers: Object.fromEntries(res.headers.entries()),
+      endpoint,
+      base_url: API_BASE_URL
+    });
     
     if (res.status === 401) {
       localStorage.removeItem('auth_token');
