@@ -1,30 +1,9 @@
+// Base API configuration
 const API_BASE_URL = 'https://battery-maintenance-backend.onrender.com';
+const API_BASE = '/api';
 
-export async function login(email, password) {
-  const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ email, password })
-  });
-
-  return res.json();
-}
-
-export async function signup(email, password, technicianName, employeeId) {
-  const res = await fetch(`${API_BASE_URL}/api/auth/signup`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ email, password, technicianName, employeeId })
-  });
-
-  return res.json();
-}
-
-export async function apiRequest(endpoint, options = {}) {
+// Helper function for making authenticated requests
+async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('auth_token');
   const headers = {
     'Content-Type': 'application/json',
@@ -35,24 +14,57 @@ export async function apiRequest(endpoint, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers
-  });
+  const requestOptions = {
+    method: options.method || 'GET',
+    headers,
+    ...options
+  };
+
+  // Remove body for GET requests to avoid issues
+  if (requestOptions.method === 'GET') {
+    delete requestOptions.body;
+  }
+
+  const url = `${API_BASE_URL}${API_BASE}${endpoint}`;
+  console.log('Making API request:', { method: requestOptions.method, url });
+
+  const res = await fetch(url, requestOptions);
 
   if (!res.ok) {
+    console.error('API Error:', { status: res.status, url, statusText: res.statusText });
+    
     if (res.status === 401) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_user');
       window.location.href = '/login';
     }
+    
     throw new Error(`HTTP error! status: ${res.status}`);
   }
 
   return res.json();
 }
 
-// Create an api object for backward compatibility with existing imports
+// Authentication functions
+export async function login(email, password) {
+  const res = await apiRequest('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password })
+  });
+
+  return res;
+}
+
+export async function signup(email, password, technicianName, employeeId) {
+  const res = await apiRequest('/auth/signup', {
+    method: 'POST',
+    body: JSON.stringify({ email, password, technicianName, employeeId })
+  });
+
+  return res;
+}
+
+// API object for backward compatibility
 export const api = {
   get: (endpoint) => apiRequest(endpoint),
   post: (endpoint, data) => apiRequest(endpoint, {
