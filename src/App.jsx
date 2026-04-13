@@ -17,7 +17,7 @@ import AdminSettings from './pages/AdminSettings.jsx';
 import NotFound from './pages/NotFound.jsx';
 
 function AppRoutes() {
-  const { isAuthed, isTechnician, isSupervisor, isManager } = useAuth();
+  const { isTechnician, isSupervisor, isManager } = useAuth();
 
   // =========================
   // TECHNICIAN ROUTES
@@ -68,7 +68,7 @@ function AppRoutes() {
 
         <Route path="/login" element={<Navigate to="/reports" replace />} />
         <Route path="/signup" element={<Navigate to="/reports" replace />} />
-        <Route path="*" element={<Navigate to="/reports" replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     );
   }
@@ -86,9 +86,6 @@ function AppRoutes() {
   );
 }
 
-// =========================
-// MAIN APP
-// =========================
 export default function App() {
   return (
     <AuthProvider>
