@@ -9,9 +9,13 @@ const port = process.env.PORT || 3000;
 // Serve static files from dist
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// API health check
+// Health check routes
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Frontend server is running' });
+});
+
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Frontend is running' });
+  res.json({ status: 'ok', message: 'Frontend server is running' });
 });
 
 // Handle favicon.ico
