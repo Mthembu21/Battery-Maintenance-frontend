@@ -1,96 +1,97 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { AuthProvider, useAuth } from './lib/AuthContext.jsx';
-import ProtectedRoute from './components/ProtectedRoute.jsx';
-import Shell from './components/Shell.jsx';
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import fs from 'fs';
+import path from 'path';
 
-import Login from './pages/Login.jsx';
-import Signup from './pages/Signup.jsx';
-import Dashboard from './pages/Dashboard.jsx';
-import BatteryRegistry from './pages/BatteryRegistry.jsx';
-import BatteryCreate from './pages/BatteryCreate.jsx';
-import MaintenanceEntry from './pages/MaintenanceEntry.jsx';
-import MaintenanceHistory from './pages/MaintenanceHistory.jsx';
-import ComplianceDashboard from './pages/ComplianceDashboard.jsx';
-import Reports from './pages/Reports.jsx';
-import AdminSettings from './pages/AdminSettings.jsx';
-import NotFound from './pages/NotFound.jsx';
+import authRoutes from './routes/auth.js';
+import batteryRoutes from './routes/batteries.js';
+import maintenanceRoutes from './routes/maintenance.js';
+import filesRoutes from './routes/files.js';
+import dashboardRoutes from './routes/dashboard.js';
+import reportsRoutes from './routes/reports.js';
 
-function IndexRedirect() {
-  const { isAuthed } = useAuth();
-  return isAuthed ? <Navigate to="/" replace /> : <Navigate to="/login" replace />;
-}
+export function createApp() {
+  const app = express();
 
-function AppRoutes() {
-  const { isAuthed, isTechnician, isSupervisor, isManager } = useAuth();
-  
-  function IndexRedirect() {
-    return isAuthed ? <Navigate to="/" replace /> : <Navigate to="/login" replace />;
+  // =========================
+  // DEBUG STARTUP LOGS
+  // =========================
+  console.log('🚀 createApp() INITIALIZED');
+  console.log('📦 Loading middleware...');
+
+  const uploadDir = path.resolve(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log('📁 Uploads folder created');
   }
 
-  // Technician routes - only maintenance entry
-  if (isTechnician) {
-    return (
-      <Routes>
-        <Route path="/login" element={<Navigate to="/maintenance/new" replace />} />
-        <Route path="/signup" element={<Navigate to="/maintenance/new" replace />} />
-        <Route path="/" element={<Navigate to="/maintenance/new" replace />} />
-        <Route path="/maintenance/new" element={<MaintenanceEntry />} />
-        <Route path="*" element={<Navigate to="/maintenance/new" replace />} />
-      </Routes>
-    );
-  }
+  app.use(morgan('dev'));
+  app.use(express.json({ limit: '2mb' }));
 
-  // Supervisor routes - dashboard, battery entry, compliance, admin settings, maintenance history
-  if (isSupervisor) {
-    return (
-      <Routes>
-        <Route path="/" element={<ProtectedRoute><Shell /></ProtectedRoute>}>
-          <Route index element={<Dashboard />} />
-          <Route path="batteries" element={<BatteryRegistry />} />
-          <Route path="batteries/create" element={<BatteryCreate />} />
-          <Route path="maintenance/history" element={<MaintenanceHistory />} />
-          <Route path="compliance" element={<ComplianceDashboard />} />
-          <Route path="admin" element={<AdminSettings />} />
-        </Route>
-        <Route path="/login" element={<Navigate to="/" replace />} />
-        <Route path="/signup" element={<Navigate to="/" replace />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    );
-  }
-
-  // Manager routes - only reports and compliance
-  if (isManager) {
-    return (
-      <Routes>
-        <Route path="/" element={<ProtectedRoute><Shell /></ProtectedRoute>}>
-          <Route index element={<Navigate to="/reports" replace />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="compliance" element={<ComplianceDashboard />} />
-        </Route>
-        <Route path="/login" element={<Navigate to="/reports" replace />} />
-        <Route path="/signup" element={<Navigate to="/reports" replace />} />
-        <Route path="*" element={<Navigate to="/reports" replace />} />
-      </Routes>
-    );
-  }
-
-  // Public routes (not authenticated)
-  return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/index" element={<IndexRedirect />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+  app.use(
+    cors({
+      origin: process.env.CORS_ORIGIN?.split(',').map((s) => s.trim()) ?? '*',
+      credentials: true
+    })
   );
-}
 
-export default function App() {
-  return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
-  );
+  // =========================
+  // HEALTH CHECK
+  // =========================
+  app.get('/api/health', (req, res) => {
+    console.log('🟢 Health check hit');
+    res.json({ ok: true });
+  });
+
+  // =========================
+  // DEBUG TEST ROUTE
+  // =========================
+  app.get('/api/test-route', (req, res) => {
+    console.log('🧪 Test route hit');
+    res.json({ message: 'ROUTES WORKING' });
+  });
+
+  // =========================
+  // ROUTE LOADING DEBUG
+  // =========================
+  console.log('🔐 Loading AUTH routes...');
+  app.use('/api/auth', authRoutes);
+  console.log('✔ AUTH routes mounted');
+
+  console.log('🔋 Loading BATTERY routes...');
+  app.use('/api/batteries', batteryRoutes);
+
+  console.log('🛠 Loading MAINTENANCE routes...');
+  app.use('/api/maintenance', maintenanceRoutes);
+
+  console.log('📁 Loading FILE routes...');
+  app.use('/api/files', filesRoutes);
+
+  console.log('📊 Loading DASHBOARD routes...');
+  app.use('/api/dashboard', dashboardRoutes);
+
+  console.log('📈 Loading REPORTS routes...');
+  app.use('/api/reports', reportsRoutes);
+
+  // =========================
+  // ERROR HANDLER
+  // =========================
+  app.use((err, req, res, next) => {
+    console.error('❌ GLOBAL ERROR:', err);
+
+    if (err?.message === 'Only PDF allowed') {
+      return res.status(400).json({ message: err.message });
+    }
+
+    if (err?.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ message: 'PDF too large (max 15MB)' });
+    }
+
+    return res.status(500).json({ message: 'Server error' });
+  });
+
+  console.log('✅ createApp() FINISHED SUCCESSFULLY');
+
+  return app;
 }
