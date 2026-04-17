@@ -7,6 +7,9 @@ export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('admin@epiroc.local');
   const [password, setPassword] = useState('Admin123!');
+  const [employeeId, setEmployeeId] = useState('');
+  const [code, setCode] = useState('');
+  const [role, setRole] = useState('manager');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -56,7 +59,7 @@ export default function Login() {
               setBusy(true);
               setError('');
               try {
-                await login(email, password);
+                await login(email, password, role, employeeId, code);
                 navigate('/');
               } catch (err) {
                 setError(err?.response?.data?.message ?? 'Login failed');
@@ -66,15 +69,69 @@ export default function Login() {
             }}
           >
             <div>
-              <label className="text-sm font-medium text-slate-700">Email</label>
-              <input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+              <label className="text-sm font-medium text-slate-700">Role</label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
                 className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-epiroc-yellow"
-                type="email"
-                required
-              />
+              >
+                <option value="manager">Manager</option>
+                <option value="technician">Technician</option>
+                <option value="supervisor">Supervisor</option>
+              </select>
             </div>
+
+            {role === 'technician' && (
+              <div>
+                <label className="text-sm font-medium text-slate-700">Email</label>
+                <input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-epiroc-yellow"
+                  type="email"
+                  required
+                />
+              </div>
+            )}
+
+            {role === 'technician' && (
+              <div>
+                <label className="text-sm font-medium text-slate-700">Employee ID</label>
+                <input
+                  value={employeeId}
+                  onChange={(e) => setEmployeeId(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-epiroc-yellow"
+                  type="text"
+                  required
+                />
+              </div>
+            )}
+
+            {role === 'supervisor' && (
+              <div>
+                <label className="text-sm font-medium text-slate-700">Supervisor Code</label>
+                <input
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-epiroc-yellow"
+                  type="text"
+                  required
+                />
+              </div>
+            )}
+
+            {(role === 'manager' || role === 'supervisor') && (
+              <div>
+                <label className="text-sm font-medium text-slate-700">Email</label>
+                <input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-epiroc-yellow"
+                  type="email"
+                  required
+                />
+              </div>
+            )}
 
             <div>
               <label className="text-sm font-medium text-slate-700">Password</label>

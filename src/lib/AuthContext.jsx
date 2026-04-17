@@ -17,8 +17,18 @@ export function AuthProvider({ children }) {
       isTechnician: user?.role === 'Technician',
       isSupervisor: user?.role === 'Supervisor',
       isManager: user?.role === 'Manager',
-      async login(email, password) {
-        const res = await api.post('/auth/login', { email, password });
+      async login(email, password, role = 'technician', employeeId = '', code = '') {
+        let res;
+        
+        if (role === 'technician') {
+          res = await api.post('/auth/technician/login', { name: email, employee_id: employeeId, password });
+        } else if (role === 'supervisor') {
+          res = await api.post('/auth/supervisor/login', { code, password });
+        } else {
+          // Fallback to email/password login for managers
+          res = await api.post('/auth/login', { email, password });
+        }
+        
         storeAuth({ token: res.data.token, user: res.data.user });
         setToken(res.data.token);
         setUser(res.data.user);
