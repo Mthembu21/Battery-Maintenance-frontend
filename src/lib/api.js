@@ -30,28 +30,34 @@ async function apiRequest(endpoint, options = {}) {
   console.log('API Base URL:', API_BASE_URL);
   console.log('Environment Variables:', { VITE_API_URL: import.meta.env.VITE_API_URL });
 
-  const res = await fetch(url, requestOptions);
+  try {
+    const res = await fetch(url, requestOptions);
 
-  if (!res.ok) {
-    console.error('API Error:', { 
-      status: res.status, 
-      url, 
-      statusText: res.statusText,
-      headers: Object.fromEntries(res.headers.entries()),
-      endpoint,
-      base_url: API_BASE_URL
-    });
-    
-    if (res.status === 401) {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_user');
-      window.location.href = '/login';
+    if (!res.ok) {
+      console.error('API Error:', { 
+        status: res.status, 
+        url, 
+        statusText: res.statusText,
+        headers: Object.fromEntries(res.headers.entries()),
+        endpoint,
+        base_url: API_BASE_URL
+      });
+      
+      if (res.status === 401) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
+        window.location.href = '/login';
+      }
+      
+      throw new Error(`HTTP error! status: ${res.status}`);
     }
-    
-    throw new Error(`HTTP error! status: ${res.status}`);
-  }
 
-  return res.json();
+    return await res.json();
+  } catch (error) {
+    console.error('API Request failed:', error);
+    console.error('Request details:', { url, method: requestOptions.method });
+    throw error;
+  }
 }
 
 // Authentication functions
