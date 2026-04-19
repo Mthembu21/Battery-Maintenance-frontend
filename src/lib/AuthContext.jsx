@@ -29,17 +29,17 @@ export function AuthProvider({ children }) {
           res = await api.post('/auth/login', { email, password });
         }
         
-        storeAuth({ token: res.data.token, user: res.data.user });
-        setToken(res.data.token);
-        setUser(res.data.user);
-        return res.data.user;
+        storeAuth({ token: res.token, user: res.user });
+        setToken(res.token);
+        setUser(res.user);
+        return res.user;
       },
       async signup(email, password, technicianName, employeeId) {
         const res = await api.post('/auth/signup', { email, password, technicianName, employeeId });
-        storeAuth({ token: res.data.token, user: res.data.user });
-        setToken(res.data.token);
-        setUser(res.data.user);
-        return res.data.user;
+        storeAuth({ token: res.token, user: res.user });
+        setToken(res.token);
+        setUser(res.user);
+        return res.user;
       },
       logout() {
         clearAuth();
