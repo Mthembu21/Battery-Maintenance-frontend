@@ -67,7 +67,7 @@ function AppRoutes() {
         </Route>
 
         <Route path="/login" element={<Navigate to="/reports" replace />} />
-        <Route path="/signup" element={<Navigate to="/reports" replace />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     );
