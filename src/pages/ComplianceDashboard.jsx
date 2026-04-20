@@ -12,8 +12,8 @@ export default function ComplianceDashboard() {
           api.get('/reports/monthly-compliance'),
           api.get('/reports/technician-activity')
         ]);
-        setMonthly(m.data);
-        setTech(t.data);
+        setMonthly(m);
+        setTech(t);
       } catch {
         setMonthly(null);
         setTech([]);
