@@ -29,7 +29,7 @@ export default function MaintenanceEntry() {
   const [success, setSuccess] = useState('');
 
   const [form, setForm] = useState({
-    technicianName: user?.technicianName || '',
+    technicianName: '',
     customerSite: '',
     assetId: '',
     assetType: '',

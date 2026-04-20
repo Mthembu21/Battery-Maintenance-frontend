@@ -12,17 +12,24 @@ async function apiRequest(endpoint, options = {}) {
     isNull: token === null,
     isEmpty: token === ''
   });
-  
+
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers
   };
 
-  if (token && token !== 'undefined' && token !== null) {
+  // Only set Authorization header if token exists and is valid
+  if (token && token !== 'undefined' && token !== null && token !== '') {
     headers.Authorization = `Bearer ${token}`;
     console.log('API Request - Authorization header set');
   } else {
     console.log('API Request - No valid token found');
+    // Clear invalid tokens
+    if (token === 'undefined' || token === null || token === '') {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
+      console.log('API Request - Cleared invalid token');
+    }
   }
 
   const requestOptions = {
