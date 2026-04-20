@@ -51,7 +51,7 @@ export default function MaintenanceHistory() {
       setBusy(true);
       try {
         const res = await api.get(`/maintenance${query}`);
-        if (alive) setRows(res.data);
+        if (alive) setRows(res);
       } finally {
         if (alive) setBusy(false);
       }

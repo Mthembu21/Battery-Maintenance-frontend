@@ -68,7 +68,7 @@ export default function Dashboard() {
     (async () => {
       try {
         const res = await api.get('/dashboard/overview');
-        if (alive) setData(res.data);
+        if (alive) setData(res);
       } catch (e) {
         if (alive) setError(e?.response?.data?.message ?? 'Failed to load');
       }

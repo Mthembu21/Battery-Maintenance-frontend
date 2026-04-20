@@ -44,7 +44,7 @@ export default function MaintenanceEntry() {
     (async () => {
       try {
         const res = await api.get('/batteries');
-        setBatteries(res.data);
+        setBatteries(res);
       } catch {
         setBatteries([]);
       }

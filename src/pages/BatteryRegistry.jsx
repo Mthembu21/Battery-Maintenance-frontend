@@ -83,7 +83,7 @@ export default function BatteryRegistry() {
     setError('');
     try {
       const res = await api.get(`/batteries${query}`);
-      setRows(res.data);
+      setRows(res);
     } catch (e) {
       setError(e?.response?.data?.message ?? 'Failed to load batteries');
     } finally {
