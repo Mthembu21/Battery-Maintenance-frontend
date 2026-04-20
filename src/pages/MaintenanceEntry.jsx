@@ -118,10 +118,20 @@ export default function MaintenanceEntry() {
             setError('');
             setSuccess('');
             try {
+              console.log('=== FORM SUBMISSION DEBUG ===');
+              console.log('FORM STATE:', JSON.stringify(form, null, 2));
+              console.log('PDF FILE:', pdf ? pdf.name : 'No PDF');
+              
               if (!pdf) throw new Error('PDF is required');
               const fd = new FormData();
               Object.entries(form).forEach(([k, v]) => fd.append(k, v));
               fd.append('pdf', pdf);
+              
+              console.log('FORM DATA ENTRIES:');
+              for (let [key, value] of fd.entries()) {
+                console.log(`${key}:`, value);
+              }
+              
               await api.post('/maintenance', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
               setSuccess('Maintenance record submitted successfully');
             } catch (err) {
