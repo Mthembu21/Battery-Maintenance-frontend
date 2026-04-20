@@ -126,9 +126,23 @@ export default function MaintenanceEntry() {
               console.log('FORM STATE:', JSON.stringify(form, null, 2));
               console.log('PDF FILE:', pdf ? pdf.name : 'No PDF');
               
+              // Validate form before submission
+              if (!form.technicianName?.trim()) throw new Error('Technician name is required');
+              if (!form.customerSite?.trim()) throw new Error('Customer/Site is required');
+              if (!form.assetId?.trim()) throw new Error('Asset selection is required');
+              if (!form.assetType?.trim()) throw new Error('Asset type is required');
+              if (!form.serialNumber?.trim()) throw new Error('Serial number is required');
+              if (!form.maintenanceDate) throw new Error('Maintenance date is required');
+              if (!form.maintenanceType?.trim()) throw new Error('Maintenance type is required');
+              
               if (!pdf) throw new Error('PDF is required');
+              
               const fd = new FormData();
-              Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+              Object.entries(form).forEach(([k, v]) => {
+                if (v !== undefined && v !== null) {
+                  fd.append(k, v);
+                }
+              });
               fd.append('pdf', pdf);
               
               console.log('FORM DATA ENTRIES:');
@@ -139,7 +153,9 @@ export default function MaintenanceEntry() {
               await api.post('/maintenance', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
               setSuccess('Maintenance record submitted successfully');
             } catch (err) {
-              setError(err?.response?.data?.message ?? err?.message ?? 'Failed to submit');
+              console.error('FORM SUBMISSION ERROR:', err);
+              const errorMessage = err?.response?.data?.message || err?.response?.data?.error || err?.message || 'Failed to submit';
+              setError(errorMessage);
             } finally {
               setBusy(false);
             } 
