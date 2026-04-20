@@ -59,9 +59,13 @@ export default function MaintenanceEntry() {
     if (selectedAsset) {
       setForm((f) => ({
         ...f,
+        technicianName: f.technicianName || user?.technicianName || '',
         assetType: selectedAsset.assetType,
-        customerSite: selectedAsset.customerSite,
-        serialNumber: selectedAsset.serialNumber
+        customerSite: f.customerSite || selectedAsset.customerSite,
+        serialNumber: f.serialNumber || selectedAsset.serialNumber,
+        maintenanceDate: f.maintenanceDate || new Date().toISOString().slice(0, 10),
+        maintenanceType: f.maintenanceType || 'Weekly',
+        notes: f.notes || ''
       }));
     }
   }, [selectedAsset]);
