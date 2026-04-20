@@ -38,6 +38,29 @@ export default function MaintenanceEntry() {
     maintenanceType: 'Weekly',
     notes: ''
   });
+
+  // Update form when user data becomes available
+  useEffect(() => {
+    if (user?.technicianName && !form.technicianName) {
+      setForm(prev => ({ ...prev, technicianName: user.technicianName }));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    // Auto-populate form when asset is selected
+    if (selectedAsset) {
+      setForm((f) => ({
+        ...f,
+        technicianName: f.technicianName || user?.technicianName || '',
+        assetType: selectedAsset.assetType,
+        customerSite: f.customerSite || selectedAsset.customerSite,
+        serialNumber: f.serialNumber || selectedAsset.serialNumber,
+        maintenanceDate: f.maintenanceDate || new Date().toISOString().slice(0, 10),
+        maintenanceType: f.maintenanceType || 'Weekly',
+        notes: f.notes || ''
+      }));
+    }
+  }, [selectedAsset]);
   const [pdf, setPdf] = useState(null);
 
   useEffect(() => {
