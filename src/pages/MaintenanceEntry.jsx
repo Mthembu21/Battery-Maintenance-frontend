@@ -144,6 +144,17 @@ export default function MaintenanceEntry() {
               />
             </div>
             <div>
+              <label className="text-sm font-medium text-slate-700">Customer/Site</label>
+              <input
+                className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm bg-slate-50"
+                value={form.customerSite}
+                onChange={(e) => setForm((f) => ({ ...f, customerSite: e.target.value }))}
+                required
+                placeholder="e.g., Customer Name/Site Name"
+                readOnly={!!selectedAsset}
+              />
+            </div>
+            <div>
               <label className="text-sm font-medium text-slate-700">Asset</label>
               <select
                 className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
