@@ -63,7 +63,9 @@ async function apiRequest(endpoint, options = {}) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
 
-    return await res.json();
+    const data = await res.json();
+    console.log('API Response - Success:', { url, dataType: typeof data, isArray: Array.isArray(data), length: data?.length, data });
+    return data;
   } catch (error) {
     console.error('API Request failed:', error);
     console.error('Request details:', { url, method: requestOptions.method });
