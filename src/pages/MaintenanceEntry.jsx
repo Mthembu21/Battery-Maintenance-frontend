@@ -60,8 +60,12 @@ export default function MaintenanceEntry() {
         notes: f.notes || ''
       }));
     }
-  }, [selectedAsset]);
+  });
   const [pdf, setPdf] = useState(null);
+
+  const selectedAsset = useMemo(() => {
+    return batteries.find((b) => b.assetId === form.assetId);
+  }, [form.assetId, batteries]);
 
   useEffect(() => {
     (async () => {
@@ -73,10 +77,6 @@ export default function MaintenanceEntry() {
       }
     })();
   }, []);
-
-  const selectedAsset = useMemo(() => {
-    return batteries.find((b) => b.assetId === form.assetId);
-  }, [form.assetId, batteries]);
 
   useEffect(() => {
     if (selectedAsset) {
