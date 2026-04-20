@@ -82,7 +82,7 @@ export default function MaintenanceEntry() {
     if (selectedAsset) {
       setForm((f) => ({
         ...f,
-        technicianName: f.technicianName || user?.technicianName || '',
+        technicianName: user?.technicianName || f.technicianName || '',
         assetType: selectedAsset.assetType,
         customerSite: f.customerSite || selectedAsset.customerSite,
         serialNumber: f.serialNumber || selectedAsset.serialNumber,
@@ -91,15 +91,9 @@ export default function MaintenanceEntry() {
         notes: f.notes || ''
       }));
     }
-  }, [selectedAsset]);
+  }, [selectedAsset, user?.technicianName]);
 
-  useEffect(() => {
-    // Auto-populate technician name when user is available
-    if (user?.technicianName && !form.technicianName) {
-      setForm((f) => ({ ...f, technicianName: user.technicianName }));
-    }
-  }, [user]);
-
+  
   return (
     <div className="min-h-screen bg-epiroc-light p-4">
       <div className="max-w-3xl mx-auto space-y-4">
