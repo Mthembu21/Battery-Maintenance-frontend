@@ -5,6 +5,14 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://battery-maintenanc
 // Helper function for making authenticated requests
 async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('auth_token');
+  console.log('API Request - Token from localStorage:', token);
+  console.log('API Request - Token validation:', {
+    exists: !!token,
+    isUndefined: token === 'undefined',
+    isNull: token === null,
+    isEmpty: token === ''
+  });
+  
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers
@@ -12,6 +20,9 @@ async function apiRequest(endpoint, options = {}) {
 
   if (token && token !== 'undefined' && token !== null) {
     headers.Authorization = `Bearer ${token}`;
+    console.log('API Request - Authorization header set');
+  } else {
+    console.log('API Request - No valid token found');
   }
 
   const requestOptions = {

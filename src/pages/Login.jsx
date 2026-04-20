@@ -115,12 +115,13 @@ export default function Login() {
                   onChange={(e) => setCode(e.target.value)}
                   className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-epiroc-yellow"
                   type="text"
+                  placeholder="SUP001"
                   required
                 />
               </div>
             )}
 
-            {(role === 'manager' || role === 'supervisor') && (
+            {role === 'manager' && (
               <div>
                 <label className="text-sm font-medium text-slate-700">Email</label>
                 <input
@@ -140,6 +141,7 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-epiroc-yellow"
                 type="password"
+                placeholder={role === 'supervisor' ? 'Supervisor123!' : 'Admin123!'}
                 required
               />
             </div>
@@ -159,7 +161,7 @@ export default function Login() {
             </button>
 
             <div className="text-xs text-slate-500">
-              Seeded supervisor: <span className="font-mono">admin@epiroc.local</span> / <span className="font-mono">Admin123!</span>
+              Seeded supervisor: <span className="font-mono">SUP001</span> / <span className="font-mono">Supervisor123!</span>
             </div>
 
             <div className="text-xs text-slate-500 text-center pt-2 border-t border-slate-200">
