@@ -51,16 +51,16 @@ export default function MaintenanceEntry() {
     if (selectedAsset) {
       setForm((f) => ({
         ...f,
-        technicianName: f.technicianName || user?.technicianName || '',
+        technicianName: user?.technicianName || f.technicianName || '',
         assetType: selectedAsset.assetType,
-        customerSite: f.customerSite || selectedAsset.customerSite,
+        customerSite: f.customerSite || selectedAsset.customerSite || selectedAsset.customerSite,
         serialNumber: f.serialNumber || selectedAsset.serialNumber,
         maintenanceDate: f.maintenanceDate || new Date().toISOString().slice(0, 10),
         maintenanceType: f.maintenanceType || 'Weekly',
         notes: f.notes || ''
       }));
     }
-  });
+  }, [selectedAsset, user?.technicianName]);
   const [pdf, setPdf] = useState(null);
 
   const selectedAsset = useMemo(() => {
@@ -71,8 +71,10 @@ export default function MaintenanceEntry() {
     (async () => {
       try {
         const res = await api.get('/batteries');
-        setBatteries(res);
-      } catch {
+        console.log('BATTERIES LOADED:', res);
+        setBatteries(Array.isArray(res) ? res : []);
+      } catch (err) {
+        console.error('ERROR LOADING BATTERIES:', err);
         setBatteries([]);
       }
     })();
@@ -222,7 +224,7 @@ export default function MaintenanceEntry() {
                 <option value="">Select asset…</option>
                 {batteries.map((b) => (
                   <option key={b._id} value={b.assetId}>
-                    {b.customer}/{b.site} · {b.assetType} · {b.serialNumber}
+                    {b.customer || 'Unknown'}/{b.site || 'Unknown'} · {b.assetType} · {b.serialNumber}
                   </option>
                 ))}
               </select>

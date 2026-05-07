@@ -26,6 +26,20 @@ export default function Signup() {
               setBusy(true);
               setError('');
               try {
+                // Client-side validation before sending to backend
+                if (!email || !email.trim()) {
+                  throw new Error('Email is required');
+                }
+                if (!password || password.length < 6) {
+                  throw new Error('Password must be at least 6 characters');
+                }
+                if (!technicianName || !technicianName.trim()) {
+                  throw new Error('Technician name is required');
+                }
+                if (!employeeId || !employeeId.trim()) {
+                  throw new Error('Employee ID is required');
+                }
+                
                 await signup(email, password, technicianName, employeeId);
                 navigate('/maintenance/new');
               } catch (err) {
