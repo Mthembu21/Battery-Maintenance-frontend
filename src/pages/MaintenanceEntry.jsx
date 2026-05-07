@@ -53,7 +53,7 @@ export default function MaintenanceEntry() {
         ...f,
         technicianName: user?.technicianName || f.technicianName || '',
         assetType: selectedAsset.assetType,
-        customerSite: f.customerSite || selectedAsset.customerSite || selectedAsset.customerSite,
+        customerSite: f.customerSite || selectedAsset.customerSite,
         serialNumber: f.serialNumber || selectedAsset.serialNumber,
         maintenanceDate: f.maintenanceDate || new Date().toISOString().slice(0, 10),
         maintenanceType: f.maintenanceType || 'Weekly',

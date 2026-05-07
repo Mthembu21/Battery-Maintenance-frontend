@@ -45,7 +45,7 @@ function Table({ rows, onDelete, userRole }) {
         <tbody>
           {rows.map((r) => (
             <tr key={r._id} className="border-t">
-              <td className="px-3 py-2">{r.customer && r.site ? `${r.customer} / ${r.site}` : r.customerSite || 'Unknown'}</td>
+              <td className="px-3 py-2">{r.customerSite || 'Unknown'}</td>
               <td className="px-3 py-2">{r.assetType}</td>
               <td className="px-3 py-2 font-mono">{r.serialNumber}</td>
               <td className="px-3 py-2 font-mono">{r.assetId}</td>
