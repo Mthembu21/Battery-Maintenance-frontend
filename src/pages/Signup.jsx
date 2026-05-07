@@ -16,8 +16,8 @@ export default function Signup() {
     <div className="min-h-screen bg-epiroc-light flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="rounded-xl bg-white p-6 shadow-card border border-black/5">
-          <div className="text-lg font-semibold text-epiroc-dark">Technician Sign Up</div>
-          <div className="text-sm text-slate-500">Create your technician account</div>
+          <div className="text-lg font-semibold text-epiroc-dark">Technician Sign Up v2.0</div>
+          <div className="text-sm text-slate-500">Create your technician account - Latest Version</div>
 
           <form
             className="mt-6 space-y-4"
