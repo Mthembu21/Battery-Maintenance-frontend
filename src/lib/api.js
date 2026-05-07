@@ -1,16 +1,14 @@
 
 // Base API configuration using environment variables
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://battery-maintenance-backend.onrender.com/api';
+const PROD_API_BASE_URL = 'https://battery-maintenance-backend.onrender.com/api';
+const DEV_API_BASE_URL = 'http://localhost:4000/api';
+const API_BASE_URL = import.meta.env.DEV ? DEV_API_BASE_URL : PROD_API_BASE_URL;
 
+console.log('=== API Configuration ===');
+console.log('Environment:', import.meta.env.DEV ? 'Development' : 'Production');
 console.log('API Base URL:', API_BASE_URL);
 console.log('Environment VITE_API_URL:', import.meta.env.VITE_API_URL);
 console.log('Current hostname:', window.location.hostname);
-
-// Force absolute URL in production
-const PROD_API_BASE_URL = 'https://battery-maintenance-backend.onrender.com/api';
-const FINAL_API_BASE_URL = window.location.hostname === 'localhost' ? API_BASE_URL : PROD_API_BASE_URL;
-
-console.log('Final API Base URL:', FINAL_API_BASE_URL);
 
 // Helper function for making authenticated requests
 async function apiRequest(endpoint, options = {}) {
@@ -53,9 +51,9 @@ async function apiRequest(endpoint, options = {}) {
     delete requestOptions.body;
   }
 
-  const url = `${FINAL_API_BASE_URL}${endpoint}`;
+  const url = `${API_BASE_URL}${endpoint}`;
   console.log('Making API request:', { method: requestOptions.method, url });
-  console.log('API Base URL:', FINAL_API_BASE_URL);
+  console.log('API Base URL:', API_BASE_URL);
   console.log('Environment Variables:', { VITE_API_URL: import.meta.env.VITE_API_URL });
 
   try {
