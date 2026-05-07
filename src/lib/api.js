@@ -2,6 +2,9 @@
 // Base API configuration using environment variables
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://battery-maintenance-backend.onrender.com/api';
 
+console.log('API Base URL:', API_BASE_URL);
+console.log('Environment VITE_API_URL:', import.meta.env.VITE_API_URL);
+
 // Helper function for making authenticated requests
 async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('auth_token');
