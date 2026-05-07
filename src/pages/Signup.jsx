@@ -26,6 +26,11 @@ export default function Signup() {
               setBusy(true);
               setError('');
               try {
+                // Test API connection first
+                console.log('Testing API connection...');
+                const testResponse = await api.get('/auth/signup-test');
+                console.log('API Test Response:', testResponse);
+                
                 // Client-side validation before sending to backend
                 if (!email || !email.trim()) {
                   throw new Error('Email is required');
@@ -40,6 +45,7 @@ export default function Signup() {
                   throw new Error('Employee ID is required');
                 }
                 
+                console.log('Attempting signup...');
                 await signup(email, password, technicianName, employeeId);
                 navigate('/maintenance/new');
               } catch (err) {
