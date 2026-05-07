@@ -41,8 +41,39 @@ export default function Signup() {
                 }
                 
                 console.log('Attempting technician signup...');
-                await signup(email, password, technicianName, employeeId);
-                navigate('/maintenance/new');
+                console.log('Signup data:', { email, password: '***', technicianName, employeeId });
+                
+                // Direct API call test to bypass any potential issues
+                try {
+                  const response = await fetch('https://battery-maintenance-backend.onrender.com/api/auth/signup', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password, technicianName, employeeId })
+                  });
+                  
+                  console.log('Direct API Response Status:', response.status);
+                  console.log('Direct API Response Headers:', Object.fromEntries(response.headers.entries()));
+                  
+                  if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Direct API Error Response:', errorText);
+                    throw new Error(`Direct API call failed: ${response.status} ${errorText}`);
+                  }
+                  
+                  const result = await response.json();
+                  console.log('Direct API Success:', result);
+                  
+                  // Store auth data manually
+                  localStorage.setItem('auth_token', result.token);
+                  localStorage.setItem('auth_user', JSON.stringify(result.user));
+                  
+                  navigate('/maintenance/new');
+                } catch (directError) {
+                  console.error('Direct API call failed:', directError);
+                  throw directError;
+                }
               } catch (err) {
                 console.error('SIGNUP ERROR:', err);
                 const errorMessage = err?.response?.data?.message || 'Signup failed';
