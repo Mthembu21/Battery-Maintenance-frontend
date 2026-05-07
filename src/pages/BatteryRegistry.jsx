@@ -17,7 +17,16 @@ const Filter = () => (
   </svg>
 );
 
-function Table({ rows }) {
+const Trash = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"/>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+    <line x1="10" y1="11" x2="10" y2="17"/>
+    <line x1="14" y1="11" x2="14" y2="17"/>
+  </svg>
+);
+
+function Table({ rows, onDelete, userRole }) {
   return (
     <div className="overflow-auto">
       <table className="min-w-full text-sm">
@@ -28,6 +37,9 @@ function Table({ rows }) {
             <th className="px-3 py-2 font-semibold">Serial Number</th>
             <th className="px-3 py-2 font-semibold">Asset ID</th>
             <th className="px-3 py-2 font-semibold">Status</th>
+            {(userRole === 'Supervisor' || userRole === 'Manager') && (
+              <th className="px-3 py-2 font-semibold">Actions</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -51,6 +63,18 @@ function Table({ rows }) {
                   {r.status}
                 </span>
               </td>
+              {(userRole === 'Supervisor' || userRole === 'Manager') && (
+                <td className="px-3 py-2">
+                  <button
+                    onClick={() => onDelete(r)}
+                    className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
+                    title="Delete battery"
+                  >
+                    <Trash />
+                    Delete
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
@@ -86,6 +110,24 @@ export default function BatteryRegistry() {
       setRows(res);
     } catch (e) {
       setError(e?.response?.data?.message ?? 'Failed to load batteries');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleDelete(battery) {
+    if (!window.confirm(`Are you sure you want to delete battery ${battery.assetId}? This will also delete all associated maintenance records.`)) {
+      return;
+    }
+
+    setBusy(true);
+    setError('');
+    try {
+      await api.delete(`/batteries/${battery._id}`);
+      // Refresh the battery list
+      await load();
+    } catch (e) {
+      setError(e?.response?.data?.message ?? 'Failed to delete battery');
     } finally {
       setBusy(false);
     }
@@ -153,7 +195,7 @@ export default function BatteryRegistry() {
       </div>
 
       <div className="rounded-xl bg-white border border-slate-200 shadow-card">
-        {busy ? <div className="p-4 text-sm text-slate-500">Loading…</div> : <Table rows={rows} />}
+        {busy ? <div className="p-4 text-sm text-slate-500">Loading…</div> : <Table rows={rows} onDelete={handleDelete} userRole={user?.role} />}
         {error ? (
           <div className="p-4 text-sm text-red-600 bg-red-50 border-t border-red-100">{error}</div>
         ) : null}
