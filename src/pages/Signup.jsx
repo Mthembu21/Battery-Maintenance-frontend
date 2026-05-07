@@ -29,7 +29,18 @@ export default function Signup() {
                 await signup(email, password, technicianName, employeeId);
                 navigate('/maintenance/new');
               } catch (err) {
-                setError(err?.response?.data?.message ?? 'Signup failed');
+                console.error('SIGNUP ERROR:', err);
+                const errorMessage = err?.response?.data?.message || 'Signup failed';
+                const errorDetails = err?.response?.data?.errors || [];
+                const errorField = err?.response?.data?.field || '';
+                
+                if (errorDetails.length > 0) {
+                  setError(`${errorMessage}: ${errorDetails.join(', ')}`);
+                } else if (errorField) {
+                  setError(`${errorMessage} (${errorField})`);
+                } else {
+                  setError(errorMessage);
+                }
               } finally {
                 setBusy(false);
               }

@@ -171,8 +171,18 @@ export default function MaintenanceEntry() {
               setSuccess('Maintenance record submitted successfully');
             } catch (err) {
               console.error('FORM SUBMISSION ERROR:', err);
-              const errorMessage = err?.response?.data?.message || err?.response?.data?.error || err?.message || 'Failed to submit';
-              setError(errorMessage);
+              const errorMessage = err?.response?.data?.message || 'Submission failed';
+              const errorDetails = err?.response?.data?.errors || [];
+              const availableAssets = err?.response?.data?.availableAssets || [];
+              const assetId = err?.response?.data?.assetId || '';
+              
+              if (errorDetails.length > 0) {
+                setError(`${errorMessage}: ${errorDetails.map(e => `${e.field}: ${e.message}`).join(', ')}`);
+              } else if (availableAssets.length > 0 && assetId) {
+                setError(`${errorMessage}. Asset "${assetId}" not found. Available assets: ${availableAssets.map(a => a.assetId).join(', ')}`);
+              } else {
+                setError(errorMessage);
+              }
             } finally {
               setBusy(false);
             } 
