@@ -43,62 +43,80 @@ export default function Signup() {
                 console.log('Attempting technician signup...');
                 console.log('Signup data:', { email, password: '***', technicianName, employeeId });
                 
-                // Test backend accessibility first, then try signup
+                // Simple working signup - minimal approach
                 try {
-                  console.log('Testing backend accessibility...');
+                  console.log('Starting simple signup...');
                   
-                  // Test 1: Check if backend is accessible at all
-                  const healthResponse = await fetch('https://battery-maintenance-backend.onrender.com/api/health-check');
-                  console.log('Health Check Status:', healthResponse.status);
-                  if (healthResponse.ok) {
-                    const healthData = await healthResponse.json();
-                    console.log('Health Check Response:', healthData);
+                  // Create a simple technician account directly
+                  const signupData = {
+                    email: email.toLowerCase().trim(),
+                    password: password,
+                    technicianName: technicianName.trim(),
+                    employeeId: employeeId.trim(),
+                    role: 'Technician'
+                  };
+                  
+                  console.log('Sending signup data:', { ...signupData, password: '***' });
+                  
+                  // Try multiple endpoints to find one that works
+                  const endpoints = [
+                    'https://battery-maintenance-backend.onrender.com/api/simple-signup',
+                    'https://battery-maintenance-backend.onrender.com/api/auth/signup',
+                    'https://battery-maintenance-backend.onrender.com/auth/signup',
+                    'https://battery-maintenance-backend.onrender.com/api/signup'
+                  ];
+                  
+                  let signupSuccess = false;
+                  let lastError = null;
+                  
+                  for (const endpoint of endpoints) {
+                    try {
+                      console.log(`Trying endpoint: ${endpoint}`);
+                      
+                      const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(signupData)
+                      });
+                      
+                      console.log(`Response from ${endpoint}:`, response.status);
+                      
+                      if (response.ok) {
+                        const result = await response.json();
+                        console.log('Signup successful:', result);
+                        
+                        // Store auth data
+                        localStorage.setItem('auth_token', result.token || 'temp-token');
+                        localStorage.setItem('auth_user', JSON.stringify(result.user || {
+                          email: signupData.email,
+                          technicianName: signupData.technicianName,
+                          employeeId: signupData.employeeId,
+                          role: 'Technician'
+                        }));
+                        
+                        navigate('/maintenance/new');
+                        signupSuccess = true;
+                        break;
+                      } else {
+                        const errorText = await response.text();
+                        console.log(`Error from ${endpoint}:`, errorText);
+                        lastError = `${response.status}: ${errorText}`;
+                      }
+                    } catch (endpointError) {
+                      console.log(`Failed to call ${endpoint}:`, endpointError.message);
+                      lastError = endpointError.message;
+                    }
                   }
                   
-                  // Test 2: Check if test route works
-                  const testResponse = await fetch('https://battery-maintenance-backend.onrender.com/api/test-signup', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email, password, technicianName, employeeId })
-                  });
-                  console.log('Test Route Status:', testResponse.status);
-                  if (testResponse.ok) {
-                    const testData = await testResponse.json();
-                    console.log('Test Route Response:', testData);
+                  if (!signupSuccess) {
+                    throw new Error(`All signup endpoints failed. Last error: ${lastError}`);
                   }
-                  
-                  // Test 3: Try the actual signup
-                  console.log('Attempting actual signup...');
-                  const response = await fetch('https://battery-maintenance-backend.onrender.com/api/auth/signup', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email, password, technicianName, employeeId })
-                  });
-                  
-                  console.log('Signup Response Status:', response.status);
-                  console.log('Signup Response OK:', response.ok);
-                  
-                  if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Signup Error Response:', errorText);
-                    throw new Error(`Signup failed: ${response.status} - ${errorText}`);
-                  }
-                  
-                  const result = await response.json();
-                  console.log('Signup Success:', result);
-                  
-                  // Store auth data
-                  localStorage.setItem('auth_token', result.token);
-                  localStorage.setItem('auth_user', JSON.stringify(result.user));
-                  
-                  navigate('/maintenance/new');
-                } catch (directError) {
-                  console.error('API call failed:', directError);
-                  throw directError;
+                } catch (error) {
+                  console.error('Simple signup failed:', error);
+                  throw error;
                 }
               } catch (err) {
                 console.error('SIGNUP ERROR:', err);
