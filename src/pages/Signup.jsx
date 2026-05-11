@@ -43,12 +43,34 @@ export default function Signup() {
                 console.log('Attempting technician signup...');
                 console.log('Signup data:', { email, password: '***', technicianName, employeeId });
                 
-                // Simple direct API call to backend
+                // Test backend accessibility first, then try signup
                 try {
-                  console.log('Making direct API call to backend...');
-                  console.log('URL:', 'https://battery-maintenance-backend.onrender.com/api/auth/signup');
-                  console.log('Data:', { email, password: '***', technicianName, employeeId });
+                  console.log('Testing backend accessibility...');
                   
+                  // Test 1: Check if backend is accessible at all
+                  const healthResponse = await fetch('https://battery-maintenance-backend.onrender.com/api/health-check');
+                  console.log('Health Check Status:', healthResponse.status);
+                  if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    console.log('Health Check Response:', healthData);
+                  }
+                  
+                  // Test 2: Check if test route works
+                  const testResponse = await fetch('https://battery-maintenance-backend.onrender.com/api/test-signup', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password, technicianName, employeeId })
+                  });
+                  console.log('Test Route Status:', testResponse.status);
+                  if (testResponse.ok) {
+                    const testData = await testResponse.json();
+                    console.log('Test Route Response:', testData);
+                  }
+                  
+                  // Test 3: Try the actual signup
+                  console.log('Attempting actual signup...');
                   const response = await fetch('https://battery-maintenance-backend.onrender.com/api/auth/signup', {
                     method: 'POST',
                     headers: {
@@ -57,12 +79,12 @@ export default function Signup() {
                     body: JSON.stringify({ email, password, technicianName, employeeId })
                   });
                   
-                  console.log('Response Status:', response.status);
-                  console.log('Response OK:', response.ok);
+                  console.log('Signup Response Status:', response.status);
+                  console.log('Signup Response OK:', response.ok);
                   
                   if (!response.ok) {
                     const errorText = await response.text();
-                    console.error('Error Response:', errorText);
+                    console.error('Signup Error Response:', errorText);
                     throw new Error(`Signup failed: ${response.status} - ${errorText}`);
                   }
                   
@@ -75,7 +97,7 @@ export default function Signup() {
                   
                   navigate('/maintenance/new');
                 } catch (directError) {
-                  console.error('Direct API call failed:', directError);
+                  console.error('API call failed:', directError);
                   throw directError;
                 }
               } catch (err) {
