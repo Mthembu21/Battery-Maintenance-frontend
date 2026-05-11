@@ -43,31 +43,12 @@ export default function Signup() {
                 console.log('Attempting technician signup...');
                 console.log('Signup data:', { email, password: '***', technicianName, employeeId });
                 
-                // Test debug route first to verify backend accessibility
+                // Simple direct API call to backend
                 try {
-                  console.log('Testing debug route...');
-                  const debugResponse = await fetch('https://battery-maintenance-backend.onrender.com/api/auth/signup-debug', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email, password, technicianName, employeeId })
-                  });
+                  console.log('Making direct API call to backend...');
+                  console.log('URL:', 'https://battery-maintenance-backend.onrender.com/api/auth/signup');
+                  console.log('Data:', { email, password: '***', technicianName, employeeId });
                   
-                  console.log('Debug API Response Status:', debugResponse.status);
-                  console.log('Debug API Response Headers:', Object.fromEntries(debugResponse.headers.entries()));
-                  
-                  if (!debugResponse.ok) {
-                    const errorText = await debugResponse.text();
-                    console.error('Debug API Error Response:', errorText);
-                    throw new Error(`Debug API call failed: ${debugResponse.status} ${errorText}`);
-                  }
-                  
-                  const debugResult = await debugResponse.json();
-                  console.log('Debug API Success:', debugResult);
-                  
-                  // Now try the real signup
-                  console.log('Debug successful, trying real signup...');
                   const response = await fetch('https://battery-maintenance-backend.onrender.com/api/auth/signup', {
                     method: 'POST',
                     headers: {
@@ -76,25 +57,25 @@ export default function Signup() {
                     body: JSON.stringify({ email, password, technicianName, employeeId })
                   });
                   
-                  console.log('Real API Response Status:', response.status);
-                  console.log('Real API Response Headers:', Object.fromEntries(response.headers.entries()));
+                  console.log('Response Status:', response.status);
+                  console.log('Response OK:', response.ok);
                   
                   if (!response.ok) {
                     const errorText = await response.text();
-                    console.error('Real API Error Response:', errorText);
-                    throw new Error(`Real API call failed: ${response.status} ${errorText}`);
+                    console.error('Error Response:', errorText);
+                    throw new Error(`Signup failed: ${response.status} - ${errorText}`);
                   }
                   
                   const result = await response.json();
-                  console.log('Real API Success:', result);
+                  console.log('Signup Success:', result);
                   
-                  // Store auth data manually
+                  // Store auth data
                   localStorage.setItem('auth_token', result.token);
                   localStorage.setItem('auth_user', JSON.stringify(result.user));
                   
                   navigate('/maintenance/new');
                 } catch (directError) {
-                  console.error('API call failed:', directError);
+                  console.error('Direct API call failed:', directError);
                   throw directError;
                 }
               } catch (err) {
