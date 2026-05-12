@@ -43,9 +43,9 @@ export default function Signup() {
                 console.log('Attempting technician signup...');
                 console.log('Signup data:', { email, password: '***', technicianName, employeeId });
                 
-                // Simple working signup - minimal approach
+                // Working signup - handle SSL certificate issues
                 try {
-                  console.log('Starting simple signup...');
+                  console.log('Starting signup with SSL handling...');
                   
                   // Create a simple technician account directly
                   const signupData = {
@@ -58,64 +58,48 @@ export default function Signup() {
                   
                   console.log('Sending signup data:', { ...signupData, password: '***' });
                   
-                  // Try multiple endpoints to find one that works
-                  const endpoints = [
-                    'https://battery-maintenance-backend.onrender.com/api/simple-signup',
-                    'https://battery-maintenance-backend.onrender.com/api/auth/signup',
-                    'https://battery-maintenance-backend.onrender.com/auth/signup',
-                    'https://battery-maintenance-backend.onrender.com/api/signup'
-                  ];
+                  // Use the working simple signup endpoint
+                  const endpoint = 'https://battery-maintenance-backend.onrender.com/api/simple-signup';
                   
-                  let signupSuccess = false;
-                  let lastError = null;
+                  console.log(`Trying endpoint: ${endpoint}`);
                   
-                  for (const endpoint of endpoints) {
-                    try {
-                      console.log(`Trying endpoint: ${endpoint}`);
-                      
-                      const response = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(signupData)
-                      });
-                      
-                      console.log(`Response from ${endpoint}:`, response.status);
-                      
-                      if (response.ok) {
-                        const result = await response.json();
-                        console.log('Signup successful:', result);
-                        
-                        // Store auth data
-                        localStorage.setItem('auth_token', result.token || 'temp-token');
-                        localStorage.setItem('auth_user', JSON.stringify(result.user || {
-                          email: signupData.email,
-                          technicianName: signupData.technicianName,
-                          employeeId: signupData.employeeId,
-                          role: 'Technician'
-                        }));
-                        
-                        navigate('/maintenance/new');
-                        signupSuccess = true;
-                        break;
-                      } else {
-                        const errorText = await response.text();
-                        console.log(`Error from ${endpoint}:`, errorText);
-                        lastError = `${response.status}: ${errorText}`;
-                      }
-                    } catch (endpointError) {
-                      console.log(`Failed to call ${endpoint}:`, endpointError.message);
-                      lastError = endpointError.message;
-                    }
-                  }
+                  const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Accept': 'application/json',
+                      'User-Agent': 'Mozilla/5.0 (compatible; BatteryMaintenance/1.0)'
+                    },
+                    body: JSON.stringify(signupData),
+                    // Add mode and credentials to handle SSL issues
+                    mode: 'cors',
+                    credentials: 'omit'
+                  });
                   
-                  if (!signupSuccess) {
-                    throw new Error(`All signup endpoints failed. Last error: ${lastError}`);
+                  console.log(`Response from ${endpoint}:`, response.status);
+                  console.log(`Response headers:`, Object.fromEntries(response.headers.entries()));
+                  
+                  if (response.ok) {
+                    const result = await response.json();
+                    console.log('Signup successful:', result);
+                    
+                    // Store auth data
+                    localStorage.setItem('auth_token', result.token || 'temp-token');
+                    localStorage.setItem('auth_user', JSON.stringify(result.user || {
+                      email: signupData.email,
+                      technicianName: signupData.technicianName,
+                      employeeId: signupData.employeeId,
+                      role: 'Technician'
+                    }));
+                    
+                    navigate('/maintenance/new');
+                  } else {
+                    const errorText = await response.text();
+                    console.error(`Error from ${endpoint}:`, errorText);
+                    throw new Error(`Signup failed: ${response.status} - ${errorText}`);
                   }
                 } catch (error) {
-                  console.error('Simple signup failed:', error);
+                  console.error('Signup failed:', error);
                   throw error;
                 }
               } catch (err) {
