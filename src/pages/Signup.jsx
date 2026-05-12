@@ -43,11 +43,11 @@ export default function Signup() {
                 console.log('Attempting technician signup...');
                 console.log('Signup data:', { email, password: '***', technicianName, employeeId });
                 
-                // Working signup - handle SSL certificate issues
+                // Local server signup - bypass deployment issues
                 try {
-                  console.log('Starting signup with SSL handling...');
+                  console.log('Starting local server signup...');
                   
-                  // Create a simple technician account directly
+                  // Create a simple technician account
                   const signupData = {
                     email: email.toLowerCase().trim(),
                     password: password,
@@ -56,50 +56,48 @@ export default function Signup() {
                     role: 'Technician'
                   };
                   
-                  console.log('Sending signup data:', { ...signupData, password: '***' });
+                  console.log('Sending signup to local server:', { ...signupData, password: '***' });
                   
-                  // Use the working simple signup endpoint
-                  const endpoint = 'https://battery-maintenance-backend.onrender.com/api/simple-signup';
+                  // Use local server endpoint
+                  const endpoint = 'http://localhost:4000/api/auth/signup';
                   
-                  console.log(`Trying endpoint: ${endpoint}`);
+                  console.log(`Trying local endpoint: ${endpoint}`);
                   
                   const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
-                      'Accept': 'application/json',
-                      'User-Agent': 'Mozilla/5.0 (compatible; BatteryMaintenance/1.0)'
+                      'Accept': 'application/json'
                     },
-                    body: JSON.stringify(signupData),
-                    // Add mode and credentials to handle SSL issues
-                    mode: 'cors',
-                    credentials: 'omit'
+                    body: JSON.stringify(signupData)
                   });
                   
-                  console.log(`Response from ${endpoint}:`, response.status);
-                  console.log(`Response headers:`, Object.fromEntries(response.headers.entries()));
+                  console.log(`Response from local server:`, response.status);
                   
                   if (response.ok) {
                     const result = await response.json();
-                    console.log('Signup successful:', result);
+                    console.log('Local signup successful:', result);
                     
                     // Store auth data
-                    localStorage.setItem('auth_token', result.token || 'temp-token');
-                    localStorage.setItem('auth_user', JSON.stringify(result.user || {
-                      email: signupData.email,
-                      technicianName: signupData.technicianName,
-                      employeeId: signupData.employeeId,
-                      role: 'Technician'
-                    }));
+                    localStorage.setItem('auth_token', result.token);
+                    localStorage.setItem('auth_user', JSON.stringify(result.user));
                     
+                    alert('✅ Technician account created successfully! Redirecting to maintenance...');
                     navigate('/maintenance/new');
                   } else {
                     const errorText = await response.text();
-                    console.error(`Error from ${endpoint}:`, errorText);
-                    throw new Error(`Signup failed: ${response.status} - ${errorText}`);
+                    console.error(`Local server error:`, errorText);
+                    const errorData = JSON.parse(errorText);
+                    throw new Error(errorData.message || `Signup failed: ${response.status}`);
                   }
                 } catch (error) {
-                  console.error('Signup failed:', error);
+                  console.error('Local signup failed:', error);
+                  
+                  // Check if local server is running
+                  if (error.message.includes('Failed to fetch') || error.message.includes('ECONNREFUSED')) {
+                    throw new Error('Local server is not running. Please start the local server first: node local-server.js');
+                  }
+                  
                   throw error;
                 }
               } catch (err) {
