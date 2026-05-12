@@ -1,17 +1,17 @@
 
-// Base API configuration - force local for testing
+// Base API configuration - production ready
 const LOCAL_API_BASE_URL = 'http://localhost:4000/api';
 const PROD_API_BASE_URL = 'https://battery-maintenance-backend.onrender.com/api';
 
-// Force local server for testing technician signup
-const API_BASE_URL = LOCAL_API_BASE_URL;
+// Use local for development, production for deployment
+const API_BASE_URL = window.location.hostname === 'localhost' ? LOCAL_API_BASE_URL : PROD_API_BASE_URL;
 
 console.log('=== API Configuration ===');
 console.log('Environment:', import.meta.env.DEV ? 'Development' : 'Production');
 console.log('API Base URL:', API_BASE_URL);
 console.log('Environment VITE_API_URL:', import.meta.env.VITE_API_URL);
 console.log('Current hostname:', window.location.hostname);
-console.log('🔧 Using local server for testing technician signup');
+console.log('🔧 Using', window.location.hostname === 'localhost' ? 'local server' : 'production server');
 
 // Helper function for making authenticated requests
 async function apiRequest(endpoint, options = {}) {
