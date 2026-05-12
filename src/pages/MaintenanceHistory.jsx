@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../lib/api.js';
+import { useAuth } from '../lib/AuthContext.jsx';
 
 export default function MaintenanceHistory() {
   const [rows, setRows] = useState([]);
   const [filter, setFilter] = useState({ customerSite: '', assetId: '', serialNumber: '', technician: '' });
   const [busy, setBusy] = useState(false);
+  const { isSupervisor, isManager } = useAuth();
 
   const handleViewPdf = async (fileUrl, filename) => {
     try {
@@ -33,6 +35,32 @@ export default function MaintenanceHistory() {
     } catch (error) {
       console.error('Error viewing PDF:', error);
       alert('Failed to load PDF. Please try again.');
+    }
+  };
+
+  const handleDeleteRecord = async (recordId, assetId, technicianName) => {
+    if (!window.confirm(`Are you sure you want to delete the maintenance record for ${assetId} (${technicianName})?`)) {
+      return;
+    }
+
+    try {
+      setBusy(true);
+      console.log('Deleting maintenance record:', recordId);
+      
+      const response = await api.delete(`/maintenance/${recordId}`);
+      
+      console.log('Delete response:', response);
+      
+      // Remove the deleted record from the local state
+      setRows(prevRows => prevRows.filter(row => row._id !== recordId));
+      
+      alert('Maintenance record deleted successfully!');
+      
+    } catch (error) {
+      console.error('Error deleting maintenance record:', error);
+      alert('Failed to delete maintenance record. Please try again.');
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -84,6 +112,7 @@ export default function MaintenanceHistory() {
               <th className="px-3 py-2 font-semibold">Asset Info</th>
               <th className="px-3 py-2 font-semibold">Technician</th>
               <th className="px-3 py-2 font-semibold">PDF</th>
+              {(isSupervisor || isManager) && <th className="px-3 py-2 font-semibold">Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -104,6 +133,17 @@ export default function MaintenanceHistory() {
                     View
                   </button>
                 </td>
+                {(isSupervisor || isManager) && (
+                  <td className="px-3 py-2">
+                    <button
+                      className="text-red-600 hover:text-red-800 font-medium text-sm"
+                      onClick={() => handleDeleteRecord(r._id, r.assetId, r.technicianName)}
+                      disabled={busy}
+                    >
+                      {busy ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
