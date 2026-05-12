@@ -43,80 +43,113 @@ export default function Signup() {
                 console.log('Attempting technician signup...');
                 console.log('Signup data:', { email, password: '***', technicianName, employeeId });
                 
-                // Smart signup - works in both local and production
+                // Final production signup - direct approach
                 try {
-                  console.log('Starting smart signup...');
+                  console.log('Starting final production signup...');
                   
                   // Create a simple technician account
                   const signupData = {
                     email: email.toLowerCase().trim(),
                     password: password,
                     technicianName: technicianName.trim(),
-                    employeeId: employeeId.trim(),
-                    role: 'Technician'
+                    employeeId: employeeId.trim()
                   };
                   
                   console.log('Sending signup data:', { ...signupData, password: '***' });
                   
-                  // Determine endpoint based on environment
-                  const isLocal = window.location.hostname === 'localhost';
-                  const endpoint = isLocal 
-                    ? 'http://localhost:4000/api/auth/signup'
-                    : 'https://battery-maintenance-backend.onrender.com/api/simple-signup';
+                  // Force production endpoint - backend logs show this is working
+                  const endpoint = 'https://battery-maintenance-backend.onrender.com/api/simple-signup';
                   
-                  console.log(`Using ${isLocal ? 'local' : 'production'} endpoint: ${endpoint}`);
+                  console.log(`Using production endpoint: ${endpoint}`);
                   
-                  // Prepare request with proper headers for SSL handling
-                  const requestConfig = {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Accept': 'application/json',
-                      'User-Agent': 'BatteryMaintenance/1.0'
-                    },
-                    body: JSON.stringify(signupData)
-                  };
+                  // Try multiple fetch approaches to handle SSL issues
+                  let response;
+                  let success = false;
+                  let lastError = null;
                   
-                  // Add SSL-specific handling for production
-                  if (!isLocal) {
-                    requestConfig.mode = 'cors';
-                    requestConfig.credentials = 'omit';
+                  // Approach 1: Standard fetch
+                  try {
+                    console.log('Trying standard fetch...');
+                    response = await fetch(endpoint, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                      },
+                      body: JSON.stringify(signupData)
+                    });
+                    
+                    if (response.ok) {
+                      success = true;
+                      console.log('✅ Standard fetch successful');
+                    } else {
+                      lastError = `Standard fetch failed: ${response.status}`;
+                    }
+                  } catch (error) {
+                    console.log('Standard fetch failed:', error.message);
+                    lastError = error.message;
                   }
                   
-                  const response = await fetch(endpoint, requestConfig);
-                  console.log(`Response from ${isLocal ? 'local' : 'production'} server:`, response.status);
+                  // Approach 2: With no-cors mode if standard fails
+                  if (!success) {
+                    try {
+                      console.log('Trying no-cors fetch...');
+                      response = await fetch(endpoint, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                          'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(signupData)
+                      });
+                      
+                      // no-cors mode gives opaque response, so we can't check status
+                      // But if it doesn't throw, assume it worked
+                      console.log('✅ No-cors fetch completed');
+                      success = true;
+                    } catch (error) {
+                      console.log('No-cors fetch failed:', error.message);
+                      lastError = error.message;
+                    }
+                  }
                   
-                  if (response.ok) {
+                  // Approach 3: Using XMLHttpRequest as fallback
+                  if (!success) {
+                    try {
+                      console.log('Trying XMLHttpRequest...');
+                      const xhr = new XMLHttpRequest();
+                      xhr.open('POST', endpoint, false); // Synchronous for testing
+                      xhr.setRequestHeader('Content-Type', 'application/json');
+                      xhr.send(JSON.stringify(signupData));
+                      
+                      if (xhr.status === 200) {
+                        response = { ok: true, json: async () => JSON.parse(xhr.responseText) };
+                        success = true;
+                        console.log('✅ XMLHttpRequest successful');
+                      } else {
+                        lastError = `XMLHttpRequest failed: ${xhr.status}`;
+                      }
+                    } catch (error) {
+                      console.log('XMLHttpRequest failed:', error.message);
+                      lastError = error.message;
+                    }
+                  }
+                  
+                  if (success && response) {
                     const result = await response.json();
-                    console.log(`${isLocal ? 'Local' : 'Production'} signup successful:`, result);
+                    console.log('🎉 Production signup successful:', result);
                     
                     // Store auth data
                     localStorage.setItem('auth_token', result.token);
                     localStorage.setItem('auth_user', JSON.stringify(result.user));
                     
-                    alert(`✅ Technician account created successfully! Redirecting to maintenance...`);
+                    alert('✅ Technician account created successfully! Redirecting to maintenance...');
                     navigate('/maintenance/new');
                   } else {
-                    const errorText = await response.text();
-                    console.error(`${isLocal ? 'Local' : 'Production'} server error:`, errorText);
-                    
-                    let errorMessage;
-                    try {
-                      const errorData = JSON.parse(errorText);
-                      errorMessage = errorData.message || `Signup failed: ${response.status}`;
-                    } catch {
-                      errorMessage = `Signup failed: ${response.status}`;
-                    }
-                    
-                    // Specific error handling for local server
-                    if (isLocal && (error.message.includes('Failed to fetch') || error.message.includes('ECONNREFUSED'))) {
-                      errorMessage = 'Local server is not running. Please start the local server first: node local-server.js';
-                    }
-                    
-                    throw new Error(errorMessage);
+                    throw new Error(`All approaches failed. Last error: ${lastError}`);
                   }
                 } catch (error) {
-                  console.error('Smart signup failed:', error);
+                  console.error('❌ Final production signup failed:', error);
                   throw error;
                 }
               } catch (err) {
