@@ -26,7 +26,7 @@ function AppRoutes() {
     return (
       <Routes>
         <Route path="/" element={<Navigate to="/maintenance/new" replace />} />
-        <Route path="/maintenance/new" element={<MaintenanceEntry />} />
+        <Route path="/maintenance/new" element={<ProtectedRoute><MaintenanceEntry /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/maintenance/new" replace />} />
       </Routes>
     );
