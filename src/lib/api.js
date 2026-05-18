@@ -1,17 +1,11 @@
 
-// Base API configuration - production ready
-const LOCAL_API_BASE_URL = 'http://localhost:4000/api';
-const PROD_API_BASE_URL = 'https://battery-maintenance-backend.onrender.com/api';
-
-// Use local for development, production for deployment
-const API_BASE_URL = window.location.hostname === 'localhost' ? LOCAL_API_BASE_URL : PROD_API_BASE_URL;
+// Base API configuration - simplified for production
+const API_BASE_URL = 'https://battery-maintenance-backend.onrender.com/api';
 
 console.log('=== API Configuration ===');
-console.log('Environment:', import.meta.env.DEV ? 'Development' : 'Production');
 console.log('API Base URL:', API_BASE_URL);
-console.log('Environment VITE_API_URL:', import.meta.env.VITE_API_URL);
-console.log('Current hostname:', window.location.hostname);
-console.log('🔧 Using', window.location.hostname === 'localhost' ? 'local server' : 'production server');
+console.log('Environment: Production');
+console.log('🔧 Using production server');
 
 // Helper function for making authenticated requests
 async function apiRequest(endpoint, options = {}) {
@@ -25,53 +19,29 @@ async function apiRequest(endpoint, options = {}) {
   });
 
   const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers
+    'Content-Type': 'application/json'
   };
 
-  // Only set Authorization header if token exists and is valid
-  if (token && token !== 'undefined' && token !== null && token !== '') {
+  if (token) {
     headers.Authorization = `Bearer ${token}`;
-    console.log('API Request - Authorization header set');
-  } else {
-    console.log('API Request - No valid token found');
-    // Clear invalid tokens
-    if (token === 'undefined' || token === null || token === '') {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_user');
-      console.log('API Request - Cleared invalid token');
-    }
   }
 
   const requestOptions = {
-    method: options.method || 'GET',
-    headers,
-    ...options
+    ...options,
+    headers
   };
 
-  // Remove body for GET requests to avoid issues
+  // Remove body for GET requests
   if (requestOptions.method === 'GET') {
     delete requestOptions.body;
   }
 
   const url = `${API_BASE_URL}${endpoint}`;
-  console.log('Making API request:', { method: requestOptions.method, url });
-  console.log('API Base URL:', API_BASE_URL);
-  console.log('Environment Variables:', { VITE_API_URL: import.meta.env.VITE_API_URL });
 
   try {
     const res = await fetch(url, requestOptions);
 
     if (!res.ok) {
-      console.error('API Error:', { 
-        status: res.status, 
-        url, 
-        statusText: res.statusText,
-        headers: Object.fromEntries(res.headers.entries()),
-        endpoint,
-        base_url: API_BASE_URL
-      });
-      
       if (res.status === 401) {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
@@ -82,11 +52,9 @@ async function apiRequest(endpoint, options = {}) {
     }
 
     const data = await res.json();
-    console.log('API Response - Success:', { url, dataType: typeof data, isArray: Array.isArray(data), length: data?.length, data });
     return data;
   } catch (error) {
     console.error('API Request failed:', error);
-    console.error('Request details:', { url, method: requestOptions.method });
     throw error;
   }
 }
@@ -125,94 +93,3 @@ export const api = {
     method: 'DELETE'
   })
 };
-
-
-// // Base API configuration using environment variables
-// const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://battery-maintenance-backend.onrender.com/api';
-
-// // Helper function for making authenticated requests
-// async function apiRequest(endpoint, options = {}) {
-//   const token = localStorage.getItem('auth_token');
-//   const headers = {
-//     'Content-Type': 'application/json',
-//     ...options.headers
-//   };
-
-//   if (token && token !== 'undefined' && token !== null) {
-//     headers.Authorization = `Bearer ${token}`;
-//   }
-
-//   const requestOptions = {
-//     method: options.method || 'GET',
-//     headers,
-//     ...options
-//   };
-
-//   // Remove body for GET requests to avoid issues
-//   if (requestOptions.method === 'GET') {
-//     delete requestOptions.body;
-//   }
-
-//   const url = `${API_BASE_URL}${endpoint}`;
-//   console.log('Making API request:', { method: requestOptions.method, url });
-//   console.log('API Base URL:', API_BASE_URL);
-//   console.log('Environment Variables:', { VITE_API_URL: import.meta.env.VITE_API_URL });
-
-//   const res = await fetch(url, requestOptions);
-
-//   if (!res.ok) {
-//     console.error('API Error:', { 
-//       status: res.status, 
-//       url, 
-//       statusText: res.statusText,
-//       headers: Object.fromEntries(res.headers.entries()),
-//       endpoint,
-//       base_url: API_BASE_URL
-//     });
-    
-//     if (res.status === 401) {
-//       localStorage.removeItem('auth_token');
-//       localStorage.removeItem('auth_user');
-//       window.location.href = '/login';
-//     }
-    
-//     throw new Error(`HTTP error! status: ${res.status}`);
-//   }
-
-//   return res.json();
-// }
-
-// // Authentication functions
-// export async function login(email, password) {
-//   const res = await apiRequest('/auth/login', {
-//     method: 'POST',
-//     body: JSON.stringify({ email, password })
-//   });
-
-//   return res;
-// }
-
-// export async function signup(email, password, technicianName, employeeId) {
-//   const res = await apiRequest('/auth/signup', {
-//     method: 'POST',
-//     body: JSON.stringify({ email, password, technicianName, employeeId })
-//   });
-
-//   return res;
-// }
-
-// // API object for backward compatibility
-// export const api = {
-//   get: (endpoint) => apiRequest(endpoint),
-//   post: (endpoint, data) => apiRequest(endpoint, {
-//     method: 'POST',
-//     body: JSON.stringify(data)
-//   }),
-//   put: (endpoint, data) => apiRequest(endpoint, {
-//     method: 'PUT',
-//     body: JSON.stringify(data)
-//   }),
-//   delete: (endpoint) => apiRequest(endpoint, {
-//     method: 'DELETE'
-//   })
-// };
