@@ -1,11 +1,14 @@
 
-// Base API configuration - simplified for production
-const API_BASE_URL = 'https://battery-maintenance-backend.onrender.com/api';
+// Base API configuration - detect environment
+const API_BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:4000/api'
+  : 'https://battery-maintenance-backend.onrender.com/api';
 
 console.log('=== API Configuration ===');
 console.log('API Base URL:', API_BASE_URL);
-console.log('Environment: Production');
-console.log('🔧 Using production server');
+console.log('Current hostname:', window.location.hostname);
+console.log('Environment:', window.location.hostname === 'localhost' ? 'Development' : 'Production');
+console.log('🔧 Using', window.location.hostname === 'localhost' ? 'local server' : 'production server');
 
 // Helper function for making authenticated requests
 async function apiRequest(endpoint, options = {}) {
