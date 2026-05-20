@@ -49,7 +49,8 @@ async function apiRequest(endpoint, options = {}) {
     method: requestOptions.method,
     hasBody: !!requestOptions.body,
     bodyType: requestOptions.body instanceof FormData ? 'FormData' : typeof requestOptions.body,
-    headers: Object.keys(headers)
+    headers: Object.keys(headers),
+    responseType: requestOptions.responseType
   });
 
   try {

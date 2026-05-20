@@ -32,7 +32,7 @@ export default function MaintenanceHistory() {
       });
       
       // Create a blob URL and open in new tab
-      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const blob = new Blob([response], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const newWindow = window.open(url, '_blank');
       
