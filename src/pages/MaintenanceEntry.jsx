@@ -244,12 +244,18 @@ export default function MaintenanceEntry() {
 
             <div>
               <label className="text-sm font-medium text-slate-700">Asset Type</label>
-              <input
+              <select
                 className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
                 value={form.assetType}
                 onChange={(e) => setForm((f) => ({ ...f, assetType: e.target.value }))}
                 required
-              />
+              >
+                <option value="">Select asset type…</option>
+                <option value="Charger">Charger</option>
+                <option value="B2 Battery">B2 Battery</option>
+                <option value="B4 Battery">B4 Battery</option>
+                <option value="B5 Battery">B5 Battery</option>
+              </select>
             </div>
 
             <div>
