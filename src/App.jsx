@@ -17,7 +17,10 @@ import AdminSettings from './pages/AdminSettings.jsx';
 import NotFound from './pages/NotFound.jsx';
 
 function AppRoutes() {
-  const { isTechnician, isSupervisor, isManager } = useAuth();
+  const auth = useAuth();
+  const isTechnician = auth.isTechnician;
+  const isSupervisor = auth.isSupervisor;
+  const isManager = auth.isManager;
 
   // =========================
   // TECHNICIAN ROUTES
