@@ -160,18 +160,22 @@ export default function MaintenanceEntry() {
               setSuccess('Maintenance record submitted successfully');
             } catch (err) {
               console.error('FORM SUBMISSION ERROR:', err);
-              const errorMessage = err?.response?.data?.message || 'Submission failed';
-              const errorDetails = err?.response?.data?.errors || [];
-              const availableAssets = err?.response?.data?.availableAssets || [];
-              const assetId = err?.response?.data?.assetId || '';
+              console.error('ERROR RESPONSE:', err?.response?.data);
               
-              if (errorDetails.length > 0) {
-                setError(`${errorMessage}: ${errorDetails.map(e => `${e.field}: ${e.message}`).join(', ')}`);
-              } else if (availableAssets.length > 0 && assetId) {
-                setError(`${errorMessage}. Asset "${assetId}" not found. Available assets: ${availableAssets.map(a => a.assetId).join(', ')}`);
+              // Show detailed error information
+              const errorData = err?.response?.data;
+              let errorMessage = 'Submission failed: ';
+              
+              if (errorData?.errors && Array.isArray(errorData.errors)) {
+                errorMessage += errorData.errors.map(e => `${e.field}: ${e.message}`).join(', ');
+              } else if (errorData?.message) {
+                errorMessage += errorData.message;
               } else {
-                setError(errorMessage);
+                errorMessage += err?.message || 'Unknown error';
               }
+              
+              setError(errorMessage);
+              alert(errorMessage);
             } finally {
               setBusy(false);
             } 
