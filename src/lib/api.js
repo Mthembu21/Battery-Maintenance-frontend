@@ -97,7 +97,7 @@ export const api = {
   get: (endpoint) => apiRequest(endpoint),
   post: (endpoint, data) => apiRequest(endpoint, {
     method: 'POST',
-    body: JSON.stringify(data)
+    body: data instanceof FormData ? data : JSON.stringify(data)
   }),
   put: (endpoint, data) => apiRequest(endpoint, {
     method: 'PUT',
