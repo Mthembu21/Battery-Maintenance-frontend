@@ -13,10 +13,13 @@ export default function MaintenanceHistory() {
   const handleViewPdf = async (fileUrl, filename) => {
     try {
       // Extract the file path from the full URL
-      // fileUrl is like: http://localhost:4000/api/files/filename.pdf
+      // fileUrl is like: /api/files/filename.pdf
       // We need: files/filename.pdf
       const urlParts = fileUrl.split('/api/');
-      const filePath = urlParts.length > 1 ? urlParts[1] : fileUrl;
+      const filePath = urlParts.length > 1 ? urlParts[1] : fileUrl.replace('/api/', '');
+      
+      console.log('PDF View - fileUrl:', fileUrl);
+      console.log('PDF View - filePath:', filePath);
       
       // Get the file with authentication
       const response = await api.get(filePath, { 
