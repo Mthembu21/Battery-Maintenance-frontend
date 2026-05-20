@@ -65,8 +65,12 @@ async function apiRequest(endpoint, options = {}) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
 
-    const data = await res.json();
-    return data;
+    // Handle different response types
+    if (requestOptions.responseType === 'blob') {
+      return await res.blob();
+    } else {
+      return await res.json();
+    }
   } catch (error) {
     console.error('API Request failed:', error);
     throw error;
