@@ -16,7 +16,12 @@ export default function MaintenanceHistory() {
       // fileUrl is like: /api/files/filename.pdf
       // We need: files/filename.pdf
       const urlParts = fileUrl.split('/api/');
-      const filePath = urlParts.length > 1 ? urlParts[1] : fileUrl.replace('/api/', '');
+      let filePath = urlParts.length > 1 ? urlParts[1] : fileUrl.replace('/api/', '');
+      
+      // Ensure filePath starts with / for correct API construction
+      if (!filePath.startsWith('/')) {
+        filePath = '/' + filePath;
+      }
       
       console.log('PDF View - fileUrl:', fileUrl);
       console.log('PDF View - filePath:', filePath);
