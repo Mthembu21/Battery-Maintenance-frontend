@@ -12,6 +12,10 @@ export default function MaintenanceHistory() {
 
   const handleViewPdf = async (fileUrl, filename) => {
     try {
+      console.log('=== PDF VIEWING START ===');
+      console.log('PDF View - fileUrl:', fileUrl);
+      console.log('PDF View - filename:', filename);
+      
       // Extract the file path from the full URL
       // fileUrl is like: /api/files/filename.pdf
       // We need: files/filename.pdf
@@ -23,18 +27,32 @@ export default function MaintenanceHistory() {
         filePath = '/' + filePath;
       }
       
-      console.log('PDF View - fileUrl:', fileUrl);
       console.log('PDF View - filePath:', filePath);
+      console.log('PDF View - Making API request with responseType: blob');
       
       // Get the file with authentication
       const response = await api.get(filePath, { 
         responseType: 'blob' 
       });
       
+      console.log('PDF View - Response received:', {
+        type: typeof response,
+        size: response.size,
+        isBlob: response instanceof Blob
+      });
+      
       // Create a blob URL and open in new tab
       const blob = new Blob([response], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
+      
+      console.log('PDF View - Blob created:', {
+        blobSize: blob.size,
+        blobUrl: url.substring(0, 50) + '...'
+      });
+      
       const newWindow = window.open(url, '_blank');
+      
+      console.log('PDF View - Window opened:', !!newWindow);
       
       // Clean up the blob URL when the window is closed
       if (newWindow) {
@@ -42,8 +60,16 @@ export default function MaintenanceHistory() {
           setTimeout(() => window.URL.revokeObjectURL(url), 100);
         };
       }
+      
+      console.log('=== PDF VIEWING SUCCESS ===');
     } catch (error) {
+      console.error('=== PDF VIEWING ERROR ===');
       console.error('Error viewing PDF:', error);
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
       alert('Failed to load PDF. Please try again.');
     }
   };
