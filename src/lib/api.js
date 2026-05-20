@@ -21,12 +21,16 @@ async function apiRequest(endpoint, options = {}) {
     isEmpty: token === ''
   });
 
-  const headers = {
-    'Content-Type': 'application/json'
-  };
+  // Don't set Content-Type for FormData - browser will set it automatically with boundary
+  const headers = {};
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
+  }
+
+  // Only set Content-Type for non-FormData requests
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
   }
 
   const requestOptions = {
@@ -40,6 +44,13 @@ async function apiRequest(endpoint, options = {}) {
   }
 
   const url = `${API_BASE_URL}${endpoint}`;
+  console.log('API Request Details:', {
+    url,
+    method: requestOptions.method,
+    hasBody: !!requestOptions.body,
+    bodyType: requestOptions.body instanceof FormData ? 'FormData' : typeof requestOptions.body,
+    headers: Object.keys(headers)
+  });
 
   try {
     const res = await fetch(url, requestOptions);
