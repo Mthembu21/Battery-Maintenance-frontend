@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import { useAuth } from '../lib/AuthContext.jsx';
@@ -48,6 +48,7 @@ export default function MaintenanceEntry() {
 
   useEffect(() => {
     // Auto-populate form when asset is selected
+    const selectedAsset = getSelectedAsset();
     if (selectedAsset) {
       setForm((f) => ({
         ...f,
@@ -60,12 +61,12 @@ export default function MaintenanceEntry() {
         notes: f.notes || ''
       }));
     }
-  }, [selectedAsset, user?.technicianName]);
+  }, [form.assetId, batteries, user?.technicianName]);
   const [pdf, setPdf] = useState(null);
 
-  const selectedAsset = useMemo(() => {
+  const getSelectedAsset = () => {
     return batteries.find((b) => b.assetId === form.assetId);
-  }, [form.assetId, batteries]);
+  };
 
   useEffect(() => {
     (async () => {
@@ -80,21 +81,7 @@ export default function MaintenanceEntry() {
     })();
   }, []);
 
-  useEffect(() => {
-    if (selectedAsset) {
-      setForm((f) => ({
-        ...f,
-        technicianName: user?.technicianName || f.technicianName || '',
-        assetType: selectedAsset.assetType,
-        customerSite: f.customerSite || selectedAsset.customerSite,
-        serialNumber: f.serialNumber || selectedAsset.serialNumber,
-        maintenanceDate: f.maintenanceDate || new Date().toISOString().slice(0, 10),
-        maintenanceType: f.maintenanceType || 'Weekly',
-        notes: f.notes || ''
-      }));
-    }
-  }, [selectedAsset, user?.technicianName]);
-
+  
   
   return (
     <div className="min-h-screen bg-epiroc-light p-4">

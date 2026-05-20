@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../lib/api.js';
 import { useAuth } from '../lib/AuthContext.jsx';
 
@@ -6,7 +6,9 @@ export default function MaintenanceHistory() {
   const [rows, setRows] = useState([]);
   const [filter, setFilter] = useState({ customerSite: '', assetId: '', serialNumber: '', technician: '' });
   const [busy, setBusy] = useState(false);
-  const { isSupervisor, isManager } = useAuth();
+  const auth = useAuth();
+  const isSupervisor = auth.isSupervisor;
+  const isManager = auth.isManager;
 
   const handleViewPdf = async (fileUrl, filename) => {
     try {
@@ -64,20 +66,21 @@ export default function MaintenanceHistory() {
     }
   };
 
-  const query = useMemo(() => {
+  const getQuery = () => {
     const params = new URLSearchParams();
     Object.entries(filter).forEach(([k, v]) => {
       if (v) params.set(k, v);
     });
     const qs = params.toString();
     return qs ? `?${qs}` : '';
-  }, [filter]);
+  };
 
   useEffect(() => {
     let alive = true;
     (async () => {
       setBusy(true);
       try {
+        const query = getQuery();
         const res = await api.get(`/maintenance${query}`);
         if (alive) setRows(res);
       } finally {
@@ -87,7 +90,7 @@ export default function MaintenanceHistory() {
     return () => {
       alive = false;
     };
-  }, [query]);
+  }, [filter]);
 
   return (
     <div className="space-y-4">
