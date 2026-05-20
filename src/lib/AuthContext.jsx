@@ -28,11 +28,23 @@ export function AuthProvider({ children }) {
   };
 
   const signup = async (email, password, technicianName, employeeId) => {
-    const res = await api.post('/auth/signup', { email, password, technicianName, employeeId });
-    storeAuth({ token: res.token, user: res.user });
-    setToken(res.token);
-    setUser(res.user);
-    return res.user;
+    console.log('=== AUTH CONTEXT SIGNUP START ===');
+    console.log('Signup data:', { email, password: '***', technicianName, employeeId });
+    try {
+      const res = await api.post('/auth/signup', { email, password, technicianName, employeeId });
+      console.log('Signup response:', res);
+      storeAuth({ token: res.token, user: res.user });
+      setToken(res.token);
+      setUser(res.user);
+      return res.user;
+    } catch (error) {
+      console.error('=== SIGNUP API ERROR ===');
+      console.error('Error:', error);
+      console.error('Status:', error.response?.status);
+      console.error('StatusText:', error.response?.statusText);
+      console.error('Data:', error.response?.data);
+      throw error;
+    }
   };
 
   const logout = () => {

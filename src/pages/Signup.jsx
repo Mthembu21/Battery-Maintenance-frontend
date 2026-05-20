@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext.jsx';
 
 export default function Signup() {
+  console.log('=== SIGNUP PAGE LOADED ===');
   const { signup } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
