@@ -156,7 +156,7 @@ export default function MaintenanceEntry() {
                 console.log(`${key}:`, value);
               }
               
-              await api.post('/maintenance', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+              await api.post('/maintenance', fd);
               setSuccess('Maintenance record submitted successfully');
             } catch (err) {
               console.error('FORM SUBMISSION ERROR:', err);
