@@ -43,48 +43,18 @@ export default function Signup() {
                 console.log('Attempting technician signup...');
                 console.log('Signup data:', { email, password: '***', technicianName, employeeId });
                 
-                // Ultra-simple signup - bypass all complexity
-                try {
-                  console.log('Starting ultra-simple signup...');
-                  
-                  // Create technician data
-                  const signupData = {
-                    email: email.toLowerCase().trim(),
-                    password: password,
-                    technicianName: technicianName.trim(),
-                    employeeId: employeeId.trim()
-                  };
-                  
-                  console.log('Signup data:', { ...signupData, password: '***' });
-                  
-                  // Create account locally and simulate success
-                  const user = {
-                    id: Date.now().toString(),
-                    email: signupData.email,
-                    technicianName: signupData.technicianName,
-                    employeeId: signupData.employeeId,
-                    role: 'Technician',
-                    createdAt: new Date().toISOString()
-                  };
-                  
-                  const token = btoa(`${user.email}:${Date.now()}`);
-                  
-                  console.log('✅ Account created locally:', user);
-                  
-                  // Store auth data
-                  localStorage.setItem('auth_token', token);
-                  localStorage.setItem('auth_user', JSON.stringify(user));
-                  
-                  // Show success message
-                  alert(`✅ Technician account created successfully!\n\nName: ${user.technicianName}\nID: ${user.employeeId}\nEmail: ${user.email}\n\nRedirecting to maintenance...`);
-                  
-                  // Navigate to maintenance
-                  navigate('/maintenance/new');
-                  
-                } catch (error) {
-                  console.error('❌ Ultra-simple signup failed:', error);
-                  throw new Error('Account creation failed: ' + error.message);
-                }
+                // Use the actual signup function from AuthContext
+                console.log('Starting production signup...');
+                
+                const user = await signup(email, password, technicianName, employeeId);
+                
+                console.log('✅ Account created successfully:', user);
+                
+                // Show success message
+                alert(`✅ Technician account created successfully!\n\nName: ${user.technicianName}\nID: ${user.employeeId}\nEmail: ${user.email}\n\nRedirecting to maintenance...`);
+                
+                // Navigate to maintenance
+                navigate('/maintenance/new');
               } catch (err) {
                 console.error('SIGNUP ERROR:', err);
                 const errorMessage = err?.response?.data?.message || 'Signup failed';
