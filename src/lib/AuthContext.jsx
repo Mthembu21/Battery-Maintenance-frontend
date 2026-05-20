@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const stored = getStoredAuth();
+  console.log('AuthProvider initializing with stored auth:', { hasToken: !!stored.token, hasUser: !!stored.user, userRole: stored.user?.role });
   const [token, setToken] = useState(stored.token);
   const [user, setUser] = useState(stored.user);
 

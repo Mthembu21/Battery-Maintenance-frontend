@@ -51,10 +51,10 @@ export default function Signup() {
                 console.log('✅ Account created successfully:', user);
                 
                 // Show success message
-                alert(`✅ Technician account created successfully!\n\nName: ${user.technicianName}\nID: ${user.employeeId}\nEmail: ${user.email}\n\nRedirecting to maintenance...`);
+                alert(`✅ Technician account created successfully!\n\nName: ${user.technicianName}\nID: ${user.employeeId}\nEmail: ${user.email}\n\nPlease login to continue...`);
                 
-                // Navigate to maintenance
-                navigate('/maintenance/new');
+                // Navigate to login instead of maintenance to ensure proper authentication
+                navigate('/login');
               } catch (err) {
                 console.error('SIGNUP ERROR:', err);
                 const errorMessage = err?.response?.data?.message || 'Signup failed';
