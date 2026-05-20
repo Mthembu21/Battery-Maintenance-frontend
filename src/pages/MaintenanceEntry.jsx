@@ -197,7 +197,7 @@ export default function MaintenanceEntry() {
                 onChange={(e) => setForm((f) => ({ ...f, customerSite: e.target.value }))}
                 required
                 placeholder="e.g., Customer Name/Site Name"
-                readOnly={!!selectedAsset}
+                readOnly={!!getSelectedAsset()}
               />
             </div>
             <div>
