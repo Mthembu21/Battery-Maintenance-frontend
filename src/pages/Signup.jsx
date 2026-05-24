@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext.jsx';
+import { api } from '../lib/api.js';
 
 export default function Signup() {
   console.log('=== SIGNUP PAGE LOADED ===');
@@ -41,8 +42,19 @@ export default function Signup() {
                   throw new Error('Employee ID is required');
                 }
                 
+                console.log('=== SIGNUP FORM SUBMISSION START ===');
                 console.log('Attempting technician signup...');
                 console.log('Signup data:', { email, password: '***', technicianName, employeeId });
+                
+                // Test API connectivity first
+                console.log('Testing API connectivity...');
+                try {
+                  const testResponse = await api.get('/auth/signup-test');
+                  console.log('API connectivity test passed:', testResponse);
+                } catch (testError) {
+                  console.error('API connectivity test failed:', testError);
+                  throw new Error('API connectivity failed: ' + testError.message);
+                }
                 
                 // Use the actual signup function from AuthContext
                 console.log('Starting production signup...');
